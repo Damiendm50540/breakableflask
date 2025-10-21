@@ -4,16 +4,26 @@ jobs:
   Dependances:
     runs-on: ubuntu-latest
     steps:
-      - name: Dependances
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Vérification syntaxe requirements.txt
         run: |
-          echo "ecrire ici le scrypt de contrôle des dépendances"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --dry-run
+      - name: Scan de vulnérabilités (safety)
+        run: |
+          pip install safety
+          safety check -r requirements.txt
   Dockerfile:
     runs-on: ubuntu-latest
     needs: Dependances
     steps:
-      - name: Test Dockerfile
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Vérification syntaxe Dockerfile (hadolint)
         run: |
-          echo "ecrire ici le scrypt de contrôle du Dockerfile"
+          sudo apt-get update && sudo apt-get install -y hadolint
+          hadolint Dockerfile
   Deploy:
     runs-on: ubuntu-latest
     needs: Dockerfile
